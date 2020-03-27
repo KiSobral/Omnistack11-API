@@ -8,7 +8,9 @@ const SessionController = require("./controllers/SessionController");
 
 const routes = express.Router();
 
-// Ongs routes
+/**
+ * Ongs routes
+ **/
 routes.get("/ongs", OngController.index);
 routes.post(
   "/ongs",
@@ -31,15 +33,61 @@ routes.post(
   OngController.create
 );
 
-// Incidents routes
-routes.get("/incidents", IncidentController.index);
-routes.post("/incidents", IncidentController.create);
-routes.delete("/incidents/:id", IncidentController.delete);
+/**
+ * Incidents routes
+ **/
+routes.get(
+  "/incidents",
+  celebrate({
+    [Segments.QUERY]: Joi.object().keys({
+      page: Joi.number()
+    })
+  }),
+  IncidentController.index
+);
+routes.post(
+  "/incidents",
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required()
+    }).unknown()
+  }),
+  IncidentController.create
+);
+routes.delete(
+  "/incidents/:id",
+  celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.number().required()
+    })
+  }),
+  IncidentController.delete
+);
 
-// Ongs profile route
-routes.get("/profile", ProfileController.index);
+/**
+ * Profile route
+ **/
+routes.get(
+  "/profile",
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required()
+    }).unknown()
+  }),
+  ProfileController.index
+);
 
-// Login routes
-routes.post("/sessions", SessionController.create);
+/**
+ * Login route
+ **/
+routes.post(
+  "/sessions",
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      id: Joi.string().required()
+    })
+  }),
+  SessionController.create
+);
 
 module.exports = routes;
